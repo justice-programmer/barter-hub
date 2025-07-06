@@ -90,8 +90,19 @@ app.post("/api/trades/:index/bid/:bidIndex", requireAuth, (req, res) => {
     return res.status(403).json({ error: "Not your trade" });
   if (!trade.bids || !trade.bids[bidIndex])
     return res.status(404).json({ error: "Bid not found" });
-  if (action === "accept" || action === "reject") {
-    trade.bids[bidIndex].status = action;
+  if (action === "accept") {
+    // Accept this bid, reject all other pending bids
+    trade.bids.forEach((b, i) => {
+      if (i === bidIndex) {
+        b.status = "accepted";
+      } else if (b.status === "pending") {
+        b.status = "rejected";
+      }
+    });
+    db.write();
+    return res.json({ success: true });
+  } else if (action === "reject") {
+    trade.bids[bidIndex].status = "rejected";
     db.write();
     return res.json({ success: true });
   }
