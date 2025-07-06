@@ -1,4 +1,3 @@
-
 import express from "express";
 import session from "express-session";
 import { LowSync } from "lowdb";
@@ -33,7 +32,6 @@ app.use(
 );
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
-
 
 // Get current user from session
 app.get("/api/me", (req, res) => {
@@ -133,13 +131,22 @@ app.post("/register", (req, res) => {
     return res.status(400).json({ error: "Username and password required" });
   }
   db.read();
-  // Ensure users array exists
-  if (!db.data.users) db.data.users = [];
+  // Ensure users array exists and is an array
+  if (!Array.isArray(db.data.users)) db.data.users = [];
   if (db.data.users.find((u) => u.username === username)) {
     return res.status(409).json({ error: "Username already exists" });
   }
   db.data.users.push({ username, password });
   db.write();
+  // Double-check: persist to file
+  try {
+    fs.writeFileSync(
+      path.join(__dirname, "data", "db.json"),
+      JSON.stringify(db.data, null, 2)
+    );
+  } catch (e) {
+    // ignore, lowdb should handle it
+  }
   res.json({ success: true });
 });
 
