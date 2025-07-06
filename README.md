@@ -1,3 +1,5 @@
+
+![Screenshot 2025-07-06 165525](https://github.com/user-attachments/assets/43fe0661-7c32-439f-a11f-3c6d783a51de)
 # Barter Hub
 a open-source and Money-friendly alternative. where instead of paying money you use **ITEMS**!!
 
