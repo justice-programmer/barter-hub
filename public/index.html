@@ -34,7 +34,6 @@
 <form id="tradeForm" style="display: none">
   <input type="text" name="have" placeholder="I have..." required />
   <input type="text" name="want" placeholder="I want..." required />
-  <input type="email" name="email" placeholder="Contact email..." required />
   <input type="url" name="image" placeholder="Image URL (optional)" />
   <button type="submit">List Item</button>
 </form>
@@ -235,8 +234,8 @@
         .map((t, i) => {
           let bidBtn = "";
           let bidsHtml = "";
-          // Show BID button only if logged in, not owner, and haven't already placed a pending bid
-          if (window.currentUser && t.owner !== window.currentUser) {
+          // Show BID button for any logged-in user (including owner), and only if they haven't already placed a pending bid
+          if (window.currentUser) {
             const hasPendingBid =
               t.bids &&
               t.bids.some(
