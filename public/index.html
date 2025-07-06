@@ -230,42 +230,62 @@
       // Try to get current user from session by calling /api/me (not implemented yet), fallback to last login
       // For now, use a workaround: after login, store username in window.currentUser
       // So, set window.currentUser in loginForm.onsubmit
+
       tradeList.innerHTML = trades
         .map((t, i) => {
           let bidBtn = "";
-          if (window.currentUser && t.owner !== window.currentUser) {
-            bidBtn = `<button class="bid-btn" data-index="${i}">BID</button>`;
-          }
           let bidsHtml = "";
-          if (
-            window.currentUser &&
-            t.owner === window.currentUser &&
-            t.bids &&
-            t.bids.length > 0
-          ) {
+          // Show BID button only if logged in, not owner, and haven't already placed a pending bid
+          if (window.currentUser && t.owner !== window.currentUser) {
+            const hasPendingBid =
+              t.bids &&
+              t.bids.some(
+                (b) => b.bidder === window.currentUser && b.status === "pending"
+              );
+            if (!hasPendingBid) {
+              bidBtn = `<button class="bid-btn" data-index="${i}">BID</button>`;
+            } else {
+              bidBtn = `<span style='color:#888;font-size:0.95em;'>(Bid placed)</span>`;
+            }
+          }
+
+          // Show all bids for this trade
+          if (t.bids && t.bids.length > 0) {
             bidsHtml =
               `<div style='margin-top:0.5rem;'><strong>Bids:</strong><ul style='padding-left:1.2em;'>` +
               t.bids
-                .map(
-                  (b, j) =>
-                    `<li><b>${b.bidder}</b>: ${b.message} [${b.status}] ` +
-                    (b.status === "pending"
-                      ? `<button class='accept-bid' data-index='${i}' data-bid='${j}'>Accept</button> <button class='reject-bid' data-index='${i}' data-bid='${j}'>Reject</button>`
-                      : "") +
-                    `</li>`
-                )
+                .map((b, j) => {
+                  let controls = "";
+                  // Only owner can accept/reject pending bids
+                  if (
+                    window.currentUser &&
+                    t.owner === window.currentUser &&
+                    b.status === "pending"
+                  ) {
+                    controls = ` <button class='accept-bid' data-index='${i}' data-bid='${j}'>Accept</button> <button class='reject-bid' data-index='${i}' data-bid='${j}'>Reject</button>`;
+                  }
+                  // Highlight accepted/rejected for the bidder
+                  let statusLabel = b.status;
+                  if (b.status === "accepted") {
+                    statusLabel = `<span style='color:green;font-weight:bold;'>accepted</span>`;
+                  } else if (b.status === "rejected") {
+                    statusLabel = `<span style='color:#b00;font-weight:bold;'>rejected</span>`;
+                  } else {
+                    statusLabel = `<span style='color:#888;'>pending</span>`;
+                  }
+                  return `<li><b>${b.bidder}</b>: ${b.message} [${statusLabel}]${controls}</li>`;
+                })
                 .join("") +
               `</ul></div>`;
           }
-          return `<li>${
-            t.image
+
+          return (
+            `<li>` +
+            (t.image
               ? `<img src="${t.image}" alt="item image" style="max-width:80px;max-height:80px;margin-right:1rem;border-radius:6px;vertical-align:middle;" />`
-              : ""
-          }<div><strong>${t.have}</strong> ➡️ <em>${
-            t.want
-          }</em><br><small>Owner: ${
-            t.owner
-          }</small> ${bidBtn} ${bidsHtml}</div></li>`;
+              : "") +
+            `<div><strong>${t.have}</strong> ➡️ <em>${t.want}</em><br><small>Owner: ${t.owner}</small> ${bidBtn} ${bidsHtml}</div></li>`
+          );
         })
         .join("");
 
