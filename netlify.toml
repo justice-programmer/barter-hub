@@ -1,7 +1,8 @@
 [functions]
+
+[functions.force]
 external_node_modules = ["express"]
 node_bundler = "esbuild"
-force = true
 from = "/api/*"
 status = 200
 to = "/.netlify/functions/api/:splat"
