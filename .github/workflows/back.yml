@@ -1,0 +1,22 @@
+name: Backup Repository
+
+on:
+  schedule:
+    - cron: '0 2 * * 5' # Runs at 2:00 AM UTC daily
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create backup archive
+        run: tar -czf backup.tar.gz .
+
+      - name: Upload backup
+        uses: actions/upload-artifact@v3
+        with:
+          name: repo-backup
+          path: backup.tar.gz
