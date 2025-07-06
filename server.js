@@ -1,11 +1,4 @@
-// Get current user from session
-app.get("/api/me", (req, res) => {
-  if (req.session && req.session.user) {
-    res.json({ username: req.session.user });
-  } else {
-    res.status(401).json({ error: "Not logged in" });
-  }
-});
+
 import express from "express";
 import session from "express-session";
 import { LowSync } from "lowdb";
@@ -40,6 +33,17 @@ app.use(
 );
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
+
+
+// Get current user from session
+app.get("/api/me", (req, res) => {
+  if (req.session && req.session.user) {
+    res.json({ username: req.session.user });
+  } else {
+    res.status(401).json({ error: "Not logged in" });
+  }
+});
+db.write(); // optional — will save the default schema if file was empty
 
 function requireAuth(req, res, next) {
   if (req.session && req.session.user) return next();
