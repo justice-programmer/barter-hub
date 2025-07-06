@@ -34,6 +34,7 @@
 <form id="tradeForm" style="display: none">
   <input type="text" name="have" placeholder="I have..." required />
   <input type="text" name="want" placeholder="I want..." required />
+  <input type="email" name="email" placeholder="Contact email..." required />
   <input type="url" name="image" placeholder="Image URL (optional)" />
   <button type="submit">List Item</button>
 </form>
@@ -164,8 +165,18 @@
         body: JSON.stringify(payload),
         credentials: "same-origin",
       });
-      if (!res.ok) throw new Error("Login failed");
-      window.currentUser = payload.username;
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || "Login failed");
+      }
+      // Get the real current user from the server (robust, not just trusting the input)
+      const meRes = await fetch("/api/me", { credentials: "same-origin" });
+      if (meRes.ok) {
+        const me = await meRes.json();
+        window.currentUser = me.username;
+      } else {
+        window.currentUser = payload.username;
+      }
       loginForm.style.display = "none";
       tradeForm.style.display = "flex";
       logoutBtn.style.display = "inline-block";
@@ -200,7 +211,10 @@
         body: JSON.stringify(payload),
         credentials: "same-origin",
       });
-      if (!res.ok) throw new Error("Failed to submit trade.");
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || "Failed to submit trade.");
+      }
       tradeForm.reset();
       loadTrades();
     } catch (err) {
@@ -225,21 +239,27 @@
       tradeForm.style.display = "flex";
       logoutBtn.style.display = "inline-block";
       loginForm.style.display = "none";
-      const currentUser = window.currentUser || null;
-      // Try to get current user from session by calling /api/me (not implemented yet), fallback to last login
-      // For now, use a workaround: after login, store username in window.currentUser
-      // So, set window.currentUser in loginForm.onsubmit
+      // Always get the current user from the server if possible
+      let currentUser = window.currentUser || null;
+      try {
+        const meRes = await fetch("/api/me", { credentials: "same-origin" });
+        if (meRes.ok) {
+          const me = await meRes.json();
+          currentUser = me.username;
+          window.currentUser = me.username;
+        }
+      } catch {}
 
       tradeList.innerHTML = trades
         .map((t, i) => {
           let bidBtn = "";
           let bidsHtml = "";
-          // Show BID button for any logged-in user (including owner), and only if they haven't already placed a pending bid
-          if (window.currentUser) {
+          // Show BID button for any logged-in user (including owner), and only if they haven't already placed a pending bid ON THIS TRADE
+          if (currentUser) {
             const hasPendingBid =
               t.bids &&
               t.bids.some(
-                (b) => b.bidder === window.currentUser && b.status === "pending"
+                (b) => b.bidder === currentUser && b.status === "pending"
               );
             if (!hasPendingBid) {
               bidBtn = `<button class="bid-btn" data-index="${i}">BID</button>`;
@@ -257,8 +277,8 @@
                   let controls = "";
                   // Only owner can accept/reject pending bids
                   if (
-                    window.currentUser &&
-                    t.owner === window.currentUser &&
+                    currentUser &&
+                    t.owner === currentUser &&
                     b.status === "pending"
                   ) {
                     controls = ` <button class='accept-bid' data-index='${i}' data-bid='${j}'>Accept</button> <button class='reject-bid' data-index='${i}' data-bid='${j}'>Reject</button>`;

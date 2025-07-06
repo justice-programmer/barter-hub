@@ -1,3 +1,11 @@
+// Get current user from session
+app.get("/api/me", (req, res) => {
+  if (req.session && req.session.user) {
+    res.json({ username: req.session.user });
+  } else {
+    res.status(401).json({ error: "Not logged in" });
+  }
+});
 import express from "express";
 import session from "express-session";
 import { LowSync } from "lowdb";
@@ -69,9 +77,14 @@ app.post("/api/trades/:index/bid", requireAuth, (req, res) => {
   db.read();
   const trade = db.data.trades[index];
   if (!trade) return res.status(404).json({ error: "Trade not found" });
-  if (trade.owner === bidder)
-    return res.status(403).json({ error: "Cannot bid on your own trade" });
+  // Remove restriction: allow bidding on own trade
   if (!trade.bids) trade.bids = [];
+  // Only allow one pending bid per user per trade
+  if (trade.bids.some((b) => b.bidder === bidder && b.status === "pending")) {
+    return res
+      .status(409)
+      .json({ error: "You already have a pending bid on this trade." });
+  }
   trade.bids.push({ bidder, message, status: "pending" });
   db.write();
   res.json({ success: true });
