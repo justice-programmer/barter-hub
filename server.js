@@ -174,4 +174,9 @@ app.post("/logout", (req, res) => {
   });
 });
 
+app.get('/health', (_req, res) => {
+  res.status(200).send('OK');
+});
+
+
 app.listen(3000, () => console.log("✅ Running at http://localhost:3000"));
