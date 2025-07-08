@@ -179,4 +179,4 @@ app.get('/health', (_req, res) => {
 });
 
 
-app.listen(3000, () => console.log("✅ Running at http://localhost:3000"));
+app.listen(3000, '0.0.0.0', () => console.log("✅ Running at http://localhost:3000"));
