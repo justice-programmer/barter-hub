@@ -25,13 +25,8 @@
     "eslint": "^9",
     "eslint-config-next": "15.4.4",
     "tailwindcss": "^4",
-    "typescript": "^5",
-  "name": "tradingsite",
-  "version": "1.0.0",
-  "main": "index.js",
-  "type": "module",
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+    "typescript": "^5"
   }
 }
+  
+
