@@ -20,9 +20,12 @@ export default function Signup() {
       if (!res.ok) throw new Error(result.error);
 
       setStatus("✅ Account conjured. Check your email!");
-    } catch (err: any) {
-      setStatus(`❌ ${err.message}`);
-    }
+      if (err instanceof Error) {
+    setStatus(`❌ ${err.message}`);
+  } else {
+    setStatus("❌ Something went wrong.");
+  }
+
   };
 
   return (
