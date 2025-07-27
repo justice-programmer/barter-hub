@@ -1,44 +1,42 @@
-"use client"
-
-import { useState, useEffect } from "react";
+"use client";
+import { useState } from "react";
 import { createBrowserClient } from '@supabase/ssr';
 
 
-export default async function Create(){
+export default function Create() {
     const [ item, setItem] = useState("")
     const [ itemwant, setItemWant ] = useState("")
 
     const handleCreateTrade = async () => {
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL as string,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string
-  );
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
+        const supabase = createBrowserClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL as string,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string
+        );
+        const {
+            data: { user },
+            error: userError,
+        } = await supabase.auth.getUser();
 
-  if (!user || userError) {
-    alert("🚫 You must be logged in to create a trade.");
-    return;
-  }
+        if (!user || userError) {
+            alert("🚫 You must be logged in to create a trade.");
+            return;
+        }
 
-  const { error } = await supabase.from("trades").insert({
-    item,
-    itemwant,
-    user_id: user.id, // Attach user's ID
-    created_at: new Date().toISOString(),
-  });
+        const { error } = await supabase.from("trades").insert({
+            item_name: item,
+            item_need_name: itemwant,
+            created_at: new Date().toISOString(),
+        });
 
-  if (error) {
-    console.error("Insert error:", error);
-    alert(`❌ Failed to create trade: ${error.message}`);
-  } else {
-    alert("✅ Trade created successfully!");
-    setItem("");
-    setItemWant("");
-  }
-};
+        if (error) {
+            console.error("Insert error:", error);
+            alert(`❌ Failed to create trade: ${error.message}`);
+        } else {
+            alert("✅ Trade created successfully!");
+            setItem("");
+            setItemWant("");
+        }
+    };
     return (
          <div className="min-h-screen p-8 sm:p-20 grid grid-rows-[20px_1fr_20px] justify-items-center gap-16 font-sans">
       <main className="row-start-2 flex flex-col gap-8 items-center sm:items-start">
