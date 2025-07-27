@@ -20,13 +20,14 @@ export default function Signup() {
       if (!res.ok) throw new Error(result.error);
 
       setStatus("✅ Account conjured. Check your email!");
+    } catch (err) {
       if (err instanceof Error) {
-    setStatus(`❌ ${err.message}`);
-  } else {
-    setStatus("❌ Something went wrong.");
-  }
-
-  };
+        setStatus(`❌ ${err.message}`);
+      } else {
+        setStatus("❌ Something went wrong.");
+      }
+    }
+  }; // ← this closing brace and semicolon was misplaced before!
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-200 flex flex-col items-center justify-center p-8">
@@ -58,5 +59,4 @@ export default function Signup() {
       {status && <p className="mt-4 text-sm text-zinc-400">{status}</p>}
     </div>
   );
-
 }
