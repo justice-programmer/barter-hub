@@ -67,7 +67,6 @@ export default function Home() {
           </>
         )}
       </nav>
-      </div>
       {/* Header */}
       <header className="text-center mb-12">
         <h1 className="font-mono text-4xl sm:text-5xl font-extrabold tracking-tight">
@@ -95,7 +94,7 @@ export default function Home() {
           </Link>
         </main>
       )}
-
+      </div>
       {/* Footer */}
       <footer className="mt-12 text-xs text-zinc-600">
         <Link

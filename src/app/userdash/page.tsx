@@ -23,11 +23,13 @@ export default function DashboardPage() {
     async function fetchUser() {
       try {
         const query = email ? `email=${email}` : uid ? `uid=${uid}` : '';
-        const res = await fetch(`/api/userdash?${query}`);
+        const res = await fetch(`/api/auth/get-user-info${query ? `?${query}` : ''}`);
         const result = await res.json();
 
         if (result.user) {
           setUser(result.user);
+        } else {
+          console.warn('No user returned:', result);
         }
       } catch (err) {
         console.error('Error fetching user:', err);
@@ -49,14 +51,8 @@ export default function DashboardPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-zinc-950 text-zinc-200 flex flex-col items-center justify-center px-6 py-12">
-        <p className="text-zinc-400 mb-4">User not found or invalid query.</p>
-        <Link
-          href="/"
-          className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded text-sm font-medium transition-all"
-        >
-          Go Home
-        </Link>
+      <div className="min-h-screen bg-zinc-950 text-red-400 flex items-center justify-center">
+        Failed to load user info.
       </div>
     );
   }
