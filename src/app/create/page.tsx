@@ -43,7 +43,7 @@ export default function Create() {
         
       <input
         type="text"
-        placeholder="Text"
+        placeholder="Item Name"
         value={item}
         onChange={(e) => setItem(e.target.value)}
         className="mb-4 px-4 py-2 rounded bg-zinc-900 text-zinc-100 border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full max-w-md"
@@ -51,7 +51,7 @@ export default function Create() {
 
       <input
         type="text"
-        placeholder="Text"
+        placeholder="Bidding Item Wanted (can be anything)"
         value={itemwant}
         onChange={(e) => setItemWant(e.target.value)}
         className="mb-4 px-4 py-2 rounded bg-zinc-900 text-zinc-100 border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full max-w-md"
