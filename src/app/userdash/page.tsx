@@ -1,8 +1,4 @@
-'use client';
-
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 
 type SupabaseUser = {
   id: string;
@@ -11,43 +7,27 @@ type SupabaseUser = {
   last_sign_in_at?: string;
 };
 
-export default function DashboardPage() {
-  const [user, setUser] = useState<SupabaseUser | null>(null);
-  const [loading, setLoading] = useState(true);
-  const searchParams = useSearchParams();
+async function getUser(searchParams: { email?: string; uid?: string }) {
+  const query = searchParams.email
+    ? `email=${searchParams.email}`
+    : searchParams.uid
+    ? `uid=${searchParams.uid}`
+    : '';
 
-  const email = searchParams.get('email');
-  const uid = searchParams.get('uid');
+  const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/auth/get-user-info${query ? `?${query}` : ''}`, {
+    cache: 'no-store',
+  });
 
-  useEffect(() => {
-    async function fetchUser() {
-      try {
-        const query = email ? `email=${email}` : uid ? `uid=${uid}` : '';
-        const res = await fetch(`/api/auth/get-user-info${query ? `?${query}` : ''}`);
-        const result = await res.json();
+  const result = await res.json();
+  return result.user as SupabaseUser | null;
+}
 
-        if (result.user) {
-          setUser(result.user);
-        } else {
-          console.warn('No user returned:', result);
-        }
-      } catch (err) {
-        console.error('Error fetching user:', err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchUser();
-  }, [email, uid]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-zinc-950 text-zinc-400 flex items-center justify-center">
-        Loading dashboard...
-      </div>
-    );
-  }
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: { email?: string; uid?: string };
+}) {
+  const user = await getUser(searchParams);
 
   if (!user) {
     return (
