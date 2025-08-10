@@ -25,7 +25,7 @@ async function getUser(email?: string, uid?: string): Promise<SupabaseUser | nul
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: { email?: string; uid?: string };
+  searchParams: { [key: string]: string | string[] | undefined };
 }) {
   const email = typeof searchParams.email === 'string' ? searchParams.email : undefined;
   const uid = typeof searchParams.uid === 'string' ? searchParams.uid : undefined;
