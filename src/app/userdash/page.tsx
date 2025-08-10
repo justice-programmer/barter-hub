@@ -7,19 +7,19 @@ type SupabaseUser = {
   last_sign_in_at?: string;
 };
 
-async function getUser(searchParams: { email?: string; uid?: string }) {
-  const query = searchParams.email
-    ? `email=${searchParams.email}`
-    : searchParams.uid
-    ? `uid=${searchParams.uid}`
-    : '';
-
+async function getUser(email?: string, uid?: string): Promise<SupabaseUser | null> {
+  const query = email ? `email=${email}` : uid ? `uid=${uid}` : '';
   const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/auth/get-user-info${query ? `?${query}` : ''}`, {
     cache: 'no-store',
   });
 
+  if (!res.ok) {
+    console.error('Failed to fetch user:', res.statusText);
+    return null;
+  }
+
   const result = await res.json();
-  return result.user as SupabaseUser | null;
+  return result.user ?? null;
 }
 
 export default async function DashboardPage({
@@ -27,12 +27,14 @@ export default async function DashboardPage({
 }: {
   searchParams: { email?: string; uid?: string };
 }) {
-  const user = await getUser(searchParams);
+  const email = typeof searchParams.email === 'string' ? searchParams.email : undefined;
+  const uid = typeof searchParams.uid === 'string' ? searchParams.uid : undefined;
+  const user = await getUser(email, uid);
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-zinc-950 text-red-400 flex items-center justify-center">
-        Failed to load user info.
+      <div className="min-h-screen bg-zinc-950 text-red-400 flex items-center justify-center font-mono">
+        ⚠️ Failed to load user info.
       </div>
     );
   }
@@ -43,9 +45,9 @@ export default async function DashboardPage({
     <div className="min-h-screen bg-zinc-950 text-zinc-200 flex flex-col justify-center items-center px-6 sm:px-20 py-12 font-sans">
       {/* User Info */}
       <div className="flex items-center gap-4 mb-8">
-        <h1 className="w-10 h-10 rounded-full bg-zinc-700 flex items-center justify-center text-white font-bold">
+        <div className="w-10 h-10 rounded-full bg-zinc-700 flex items-center justify-center text-white font-bold">
           👤
-        </h1>
+        </div>
         <h1 className="text-lg font-mono text-indigo-400">{user.email}</h1>
         {isOwner && (
           <span className="px-2 py-1 bg-indigo-400 text-zinc-900 font-mono text-xs rounded shadow">
@@ -81,7 +83,7 @@ export default async function DashboardPage({
         </div>
       )}
 
-      <footer className="mt-20 text-xs text-zinc-600">
+      <footer className="mt-20 text-xs text-zinc-600 font-mono">
         Powered by Supabase & SuperCLI✨
       </footer>
     </div>
