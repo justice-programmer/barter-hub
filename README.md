@@ -1,5 +1,6 @@
 
-![Barter Hub Banner](https://github.com/user-attachments/assets/43fe0661-7c32-439f-a11f-3c6d783a51de)
+<img width="1365" height="588" alt="Screenshot 2025-08-09 213651" src="https://github.com/user-attachments/assets/39f6045f-1468-47ad-9f14-31758a77a84a" />
+
 
 <h1 align="center">Barter Hub</h1>
 <p align="center">
